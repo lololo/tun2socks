@@ -37,7 +37,7 @@ public final class TSIPStack {
     // The whole stack is running in this dispatch queue.
     public var processQueue = DispatchQueue(label: "tun2socks.IPStackQueue", attributes: [])
     
-    var timer: DispatchSourceTimer?
+    var timer: Timer?
     let listenPCB: UnsafeMutablePointer<tcp_pcb>
     
     /// When the IP stack decides to output some IP packets, this block is called.
@@ -91,16 +91,13 @@ public final class TSIPStack {
      - warning: Do not call this unless the stack is not resumed or you suspend the timer.
      */
     public func resumeTimer() {
-        timer = DispatchSource.makeTimerSource(queue: processQueue)
-        // note the default tcp_tmr interval is 250 ms.
-        // I don't know the best way to set leeway.
-        timer!.schedule(deadline: DispatchTime.distantFuture , repeating: DispatchTimeInterval.microseconds(250), leeway: DispatchTimeInterval.microseconds(250))
-        timer!.setEventHandler {
-            [weak self] in
-            self?.checkTimeout()
-        }
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { (_) in
+            self.checkTimeout();
+        })
+        
         sys_restart_timeouts()
-        timer!.resume()
+        
     }
     
     /**

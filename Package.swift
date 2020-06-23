@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "tun2socks",
+    platforms: [SupportedPlatform.iOS(.v10), SupportedPlatform.macOS(.v10_10)],
     products: [
         .library(
             name: "tun2socks",
